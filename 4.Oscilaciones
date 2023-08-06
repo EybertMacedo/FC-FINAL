@@ -1,0 +1,63 @@
+import pygame
+import pymunk
+import pymunk.pygame_util
+
+pygame.init()
+
+
+ancho, alto = 800, 600
+pantalla = pygame.display.set_mode((ancho, alto))
+pygame.display.set_caption("Ejemplo de resorte con PyMunk")
+
+
+espacio = pymunk.Space()
+espacio.gravity = (0, -9.8)
+
+
+opciones_dibujo = pymunk.pygame_util.DrawOptions(pantalla)
+
+
+masa_bola = 50
+radio_bola = 30
+momento_bola = pymunk.moment_for_circle(masa_bola, 0, radio_bola)
+cuerpo_bola = pymunk.Body(masa_bola, momento_bola)
+cuerpo_bola.position = (ancho // 4, alto // 2)
+
+forma_bola = pymunk.Circle(cuerpo_bola, radio_bola)
+forma_bola.friction = 0.5
+espacio.add(cuerpo_bola, forma_bola)
+
+
+punto_anclaje = (ancho // 2, alto // 2)
+
+
+rigidez = 100
+amortiguamiento = 20  
+resorte = pymunk.DampedSpring(cuerpo_bola, espacio.static_body, (0, 0), punto_anclaje, 0, rigidez, amortiguamiento)
+espacio.add(resorte)
+
+
+reloj = pygame.time.Clock()
+ejecutando = True
+while ejecutando:
+    for evento in pygame.event.get():
+        if evento.type == pygame.QUIT:
+            ejecutando = False
+
+    
+    pantalla.fill((255, 255, 255))
+
+    
+    dt = 1.0 / 60.0
+    espacio.step(dt)
+
+    
+    espacio.debug_draw(opciones_dibujo)
+
+    
+    pygame.display.flip()
+
+    
+    reloj.tick(60)
+
+pygame.quit()
